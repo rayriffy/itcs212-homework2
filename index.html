@@ -10,24 +10,26 @@
           Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
           "Segoe UI Symbol";
       }
-      
-      body, h2, h3 {
-      margin: 0;
+
+      body,
+      h2,
+      h3 {
+        margin: 0;
       }
 
       .container {
         padding: 20px 50px;
       }
-      
+
       .form {
         padding: 15px 0;
       }
-      
+
       .banned-list {
         display: flex;
         flex-wrap: wrap;
       }
-      
+
       .checkbox-field {
         padding: 5px;
       }
@@ -51,6 +53,11 @@
       <div class="result"></div>
     </div>
     <script>
+      /**
+      *
+      */
+      const upperFirst = o => o.charAt(0).toUpperCase() + o.slice(1);
+
       /**
        * Define phone number type
        */
@@ -90,7 +97,7 @@
         Object.entries(types).map(([key, val]) => {
           const optionDOM = document.createElement("option");
           optionDOM.setAttribute("value", key);
-          optionDOM.innerText = key.charAt(0).toUpperCase() + key.slice(1);
+          optionDOM.innerText = upperFirst(key);
           document.querySelector("#select-type").appendChild(optionDOM);
         });
       });
@@ -119,7 +126,7 @@
                 return types[typeRes].filter(o => !`${o}`.includes(number));
               });
 
-        // Intersection them
+        // Intersection items inslide array of array
         const numbers = validSequences.reduce((a, b) =>
           a.filter(c => b.includes(c))
         );
