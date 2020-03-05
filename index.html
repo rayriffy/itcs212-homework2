@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lucky Number</title>
+    <style>
+      html {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+          Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+      }
+      
+      body, h2, h3 {
+      margin: 0;
+      }
+
+      .container {
+        padding: 20px 50px;
+      }
+      
+      .form {
+        padding: 15px 0;
+      }
+      
+      .banned-list {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      
+      .checkbox-field {
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Lucky Number</h2>
+      <div class="form">
+        <div class="input">
+          <span>Category:</span>
+          <select id="select-type"> </select>
+        </div>
+        <div class="input">
+          <span>Banned number:</span>
+          <div class="banned-list"></div>
+        </div>
+        <button id="find">Find</button>
+      </div>
+      <h3>Result</h3>
+      <div class="result"></div>
+    </div>
+    <script>
+      /**
+       */
+      const randomRange = (min, max) =>
+        Math.floor(Math.random() * (max - min + 1) + min);
+
+      /**
+       * Define phone number type
+       */
+      const types = {
+        work: [45, 46, 78, 87, 39, 93, 56],
+        love: [32, 24, 62, 36, 63, 69, 96],
+        wealth: [28, 82, 45, 54, 65, 56, 78],
+        merchandising: [44, 22, 41, 16, 61, 26, 42],
+        technology: [98, 89, 99, 59, 95, 91, 19],
+        education: [15, 51, 14, 41, 55, 39, 23]
+      };
+
+      /**
+       * When DOM is loaded, then inject all inputs and options
+       */
+      window.addEventListener("DOMContentLoaded", () => {
+        // Generate checkboxes
+        Array.from({ length: 10 }).map((_, i) => {
+          const wrapperDOM = document.createElement("div");
+          wrapperDOM.setAttribute("class", `checkbox-field`);
+
+          const checkboxDOM = document.createElement("input");
+          checkboxDOM.setAttribute("type", "checkbox");
+          checkboxDOM.setAttribute("id", `input-checkbox-${i}`);
+          checkboxDOM.setAttribute("name", `input-checkbox-${i}`);
+          wrapperDOM.appendChild(checkboxDOM);
+
+          const placeholderDOM = document.createElement("label");
+          placeholderDOM.setAttribute("for", `input-checkbox-${i}`);
+          placeholderDOM.innerText = i;
+          wrapperDOM.appendChild(placeholderDOM);
+
+          document.querySelector(".banned-list").appendChild(wrapperDOM);
+        });
+
+        // Generate options
+        Object.entries(types).map(([key, val]) => {
+          const optionDOM = document.createElement("option");
+          optionDOM.setAttribute("value", key);
+          optionDOM.innerText = key.charAt(0).toUpperCase() + key.slice(1);
+          document.querySelector("#select-type").appendChild(optionDOM);
+        });
+      });
+
+      /**
+       * Add event handler for submit button
+       */
+      document.querySelector("#find").addEventListener("click", () => {
+        // Get types
+        const typeRes = document.querySelector(`#select-type`).value;
+
+        // Get all banned numbers
+        const checkboxRes = Array.from({ length: 10 })
+          .map((_, i) => {
+            // Get element and return a value
+            const checkboxEl = document.querySelector(`#input-checkbox-${i}`);
+            return checkboxEl.checked ? i : undefined;
+          })
+          .filter(o => o !== undefined);
+
+        // Get valid number sequence
+        const validSequences =
+          checkboxRes.length === 0
+            ? [types[typeRes]]
+            : checkboxRes.map(number => {
+                return types[typeRes].filter(o => !`${o}`.includes(number));
+              });
+
+        // Intersection them
+        const numbers = validSequences.reduce((a, b) =>
+          a.filter(c => b.includes(c))
+        );
+
+        if (numbers.length !== 0) {
+          // Init string
+          let generatedNumber = "";
+
+          while (generatedNumber.length <= 7) {
+            const randomNumber = Math.floor((Math.random() * 100000) % 10);
+
+            // If random number is not an banned number then add into the list
+            if (!checkboxRes.includes(randomNumber)) {
+              generatedNumber = `${generatedNumber}${randomNumber}`;
+            }
+          }
+
+          // Randomly inject lucky number into string
+          const breakPoint = Math.floor(
+            Math.random() * (generatedNumber.length + 1)
+          );
+          const phoneNumber = `0${generatedNumber.substr(0, breakPoint)}${
+            numbers[Math.floor(Math.random() * numbers.length)]
+          }${generatedNumber.substr(breakPoint)}`;
+
+          // Add into results
+          document.querySelector(".result").innerText = phoneNumber;
+        } else {
+          // Impossible
+          document.querySelector(".result").innerText = "Impossible";
+        }
+      });
+    </script>
+  </body>
+</html>
